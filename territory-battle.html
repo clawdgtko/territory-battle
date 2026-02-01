@@ -512,7 +512,11 @@
                 </div>
             </div>
         </div>
-        <button onclick="startGame()" style="margin-top: 30px; font-size: 0.8em;">⚔️ COMBATTRE</button>
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button onclick="showLeaderboardUI()" style="font-size: 0.7em; background: #2980b9; border-color: #3498db; box-shadow: 0 4px 0 #1a5276;">🏆 CLASSEMENT</button>
+            <button onclick="showRegisterUI()" style="font-size: 0.8em;">⚔️ COMBATTRE</button>
+        </div>
+        <div id="current-player-display" style="margin-top: 20px; font-size: 0.6em; color: #888;"></div>
     </div>
 
     <div id="game-header">
@@ -862,9 +866,37 @@
             
             if (alivePlayers.size === 1) {
                 const winner = [...alivePlayers][0];
+                const won = (winner === 0); // Joueur 0 est le joueur humain
+                
                 document.getElementById('winner-name').textContent = `${PLAYERS[winner].name} GAGNE!`;
                 document.getElementById('victory-screen').style.display = 'flex';
                 gameEnded = true;
+                
+                // Calculer le score et soumettre
+                let totalTerritories = 0;
+                let totalUnits = 0;
+                let unitsKilled = turn * 5; // Estimation
+                
+                for (let y = 0; y < BOARD_SIZE; y++) {
+                    for (let x = 0; x < BOARD_SIZE; x++) {
+                        if (board[y][x].player === winner) {
+                            totalTerritories++;
+                            totalUnits += board[y][x].units;
+                        }
+                    }
+                }
+                
+                const score = totalTerritories * 100 + totalUnits * 10 + (won ? 1000 : 0);
+                
+                // Soumettre au leaderboard si disponible
+                if (typeof submitGameResult === 'function') {
+                    submitGameResult(score, won, {
+                        territories_conquered: totalTerritories,
+                        units_lost: 0,
+                        units_killed: unitsKilled,
+                        turns_played: turn
+                    });
+                }
             }
         }
 
@@ -891,7 +923,17 @@ COMBAT:
 RENFORTS: +1 unite par tour!`);
         }
 
+        // Afficher le pseudo du joueur sur l'écran d'accueil
+        const savedPseudo = localStorage.getItem('tb_player_pseudo');
+        if (savedPseudo) {
+            const display = document.getElementById('current-player-display');
+            if (display) {
+                display.innerHTML = `👤 Joueur: <span style="color: #f1c40f;">${savedPseudo}</span>`;
+            }
+        }
+        
         renderBoard();
     </script>
+    <script src="leaderboard.js"></script>
 </body>
 </html>
