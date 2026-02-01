@@ -14,9 +14,8 @@ function jsonResponse(data, status = 200) {
 }
 
 export async function onRequest(context) {
-  const { request, env } = context;
-  const url = new URL(request.url);
-  const path = url.pathname.replace('/api', '');
+  const { request, env, params } = context;
+  const path = '/' + (params.route || '');
   
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
