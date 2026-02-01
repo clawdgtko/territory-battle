@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Territory Battle - Jeu de Stratégie</title>
+    <title>⚔️ Territory Battle - Jeu de Stratégie Médiéval</title>
     <style>
         * {
             margin: 0;
@@ -15,9 +15,11 @@
             user-select: none;
         }
 
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Roboto', sans-serif;
+            background: #0a0a12;
             color: #fff;
             overflow: hidden;
             height: 100vh;
@@ -25,32 +27,73 @@
             flex-direction: column;
         }
 
+        /* Animated CRT scanline effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
         #game-header {
-            background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #e94560;
+            border-bottom: 4px solid #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 100;
         }
 
         #current-player {
-            font-size: 1.2em;
-            font-weight: bold;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.75em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .player-indicator {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+            image-rendering: pixelated;
             border: 2px solid #fff;
+            box-shadow: 0 0 10px currentColor;
+            animation: pixelPulse 1s steps(2) infinite;
+        }
+
+        @keyframes pixelPulse {
+            0%, 100% { box-shadow: 0 0 10px currentColor; }
+            50% { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
         }
 
         #turn-counter {
-            font-size: 1.1em;
-            color: #e94560;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7em;
+            color: #f1c40f;
+            text-shadow: 2px 2px 0 #000;
         }
 
         #game-container {
@@ -60,117 +103,219 @@
             align-items: center;
             padding: 10px;
             position: relative;
+            background: #0a0a12;
         }
 
         #game-board {
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 3px;
-            background: #0f3460;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 95vmin;
-            max-height: 95vmin;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 2px;
+            background: #1a1a2e;
+            padding: 8px;
+            border: 4px solid #333;
+            box-shadow: 
+                0 0 0 2px #1a1a2e,
+                0 0 0 4px #333,
+                0 20px 60px rgba(0,0,0,0.9);
+            max-width: 98vmin;
+            max-height: 85vh;
         }
 
         .cell {
             aspect-ratio: 1;
-            background: #1a1a2e;
-            border-radius: 5px;
+            background: #2a2a3e;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5em;
             cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
+            transition: all 0.1s;
+            border: 1px solid #3a3a4e;
             position: relative;
+            overflow: hidden;
+            min-width: 0;
+            min-height: 0;
         }
 
-        .cell:active {
-            transform: scale(0.95);
+        .cell:hover {
+            background: #3a3a4e;
+            border-color: #555;
+            z-index: 10;
         }
 
         .cell.selected {
+            background: #4a4a5e;
             border-color: #fff;
-            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.3);
+            animation: pixelSelected 0.5s steps(2) infinite;
+        }
+
+        @keyframes pixelSelected {
+            0%, 100% { box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
+            50% { box-shadow: inset 0 0 25px rgba(255,255,255,0.5); }
         }
 
         .cell.valid-move {
-            background: #2ecc71;
-            opacity: 0.8;
+            background: #2d5016;
+            border-color: #4ade80;
+            animation: pixelValid 0.8s steps(2) infinite;
+        }
+
+        @keyframes pixelValid {
+            0%, 100% { background: #2d5016; }
+            50% { background: #3d6026; }
         }
 
         .cell.attack-target {
-            background: #e74c3c;
-            opacity: 0.8;
+            background: #7f1d1d;
+            border-color: #f87171;
+            animation: pixelAttack 0.4s steps(2) infinite;
         }
 
+        @keyframes pixelAttack {
+            0%, 100% { background: #7f1d1d; }
+            50% { background: #9f2d2d; }
+        }
+
+        /* Pixel Art Units */
         .unit {
-            width: 80%;
-            height: 80%;
-            border-radius: 50%;
+            width: 90%;
+            height: 90%;
+            image-rendering: pixelated;
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
-            font-size: 0.8em;
-            border: 3px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
-        .unit.player1 { background: linear-gradient(135deg, #e94560, #c73e54); }
-        .unit.player2 { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .unit.player3 { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .unit.player4 { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .unit svg {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            shape-rendering: crispEdges;
+        }
 
+        .unit-counter {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: #000;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6em;
+            padding: 2px 4px;
+            border: 1px solid #fff;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* Terrains */
         .terrain-mountain {
-            background: #5d4037 !important;
+            background: #4a3728 !important;
+        }
+        .terrain-mountain::after { 
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%236b5a4a' d='M8 2 L14 14 H2 Z'/%3E%3Cpath fill='%238b7a6a' d='M8 4 L12 12 H4 Z'/%3E%3Cpath fill='%23fff' d='M7 6 L8 4 L9 6 Z'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
         }
 
         .terrain-forest {
-            background: #1b5e20 !important;
+            background: #1b4d1b !important;
+        }
+        .terrain-forest::after { 
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%232d7a2d' d='M8 1 L13 6 H10 V8 H14 L8 14 L2 8 H6 V6 H3 Z'/%3E%3Cpath fill='%231b5e1b' d='M8 14 L6 16 H10 Z'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
         }
 
         .terrain-water {
-            background: #01579b !important;
+            background: #0d3b66 !important;
+            animation: waterPixel 2s steps(3) infinite;
+        }
+
+        @keyframes waterPixel {
+            0%, 100% { background: #0d3b66; }
+            50% { background: #1d4b76; }
+        }
+
+        .terrain-water::after { 
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%234aa3df' d='M2 8 Q4 6 6 8 T10 8 T14 8' stroke='%234aa3df' stroke-width='2' fill='none'/%3E%3Cpath fill='%234aa3df' d='M2 12 Q4 10 6 12 T10 12 T14 12' stroke='%234aa3df' stroke-width='2' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
+            opacity: 0.7;
+        }
+
+        .terrain-castle {
+            background: #3d2b5a !important;
+        }
+        .terrain-castle::after {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%237c6fa7' x='4' y='6' width='8' height='8'/%3E%3Crect fill='%239c8fc7' x='2' y='2' width='3' height='5'/%3E%3Crect fill='%239c8fc7' x='11' y='2' width='3' height='5'/%3E%3Crect fill='%235c4f87' x='6' y='10' width='4' height='4'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
         }
 
         #controls {
-            background: rgba(0,0,0,0.3);
+            background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
             padding: 15px;
             display: flex;
             justify-content: center;
             gap: 15px;
-            border-top: 2px solid #e94560;
+            border-top: 4px solid #333;
+            position: relative;
+            z-index: 100;
         }
 
         button {
-            background: linear-gradient(135deg, #e94560, #c73e54);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.65em;
+            background: #c0392b;
             color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: bold;
+            border: 2px solid #e74c3c;
+            padding: 12px 20px;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            transition: all 0.1s;
+            box-shadow: 0 4px 0 #8b0000, 0 6px 10px rgba(0,0,0,0.5);
+            text-transform: uppercase;
+            position: relative;
+            top: 0;
         }
 
         button:hover {
+            background: #e74c3c;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+            box-shadow: 0 6px 0 #8b0000, 0 8px 15px rgba(0,0,0,0.5);
         }
 
         button:active {
-            transform: translateY(0);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #8b0000, 0 4px 5px rgba(0,0,0,0.5);
+            top: 2px;
         }
 
         button.secondary {
-            background: linear-gradient(135deg, #0f3460, #16213e);
-            box-shadow: 0 4px 15px rgba(15, 52, 96, 0.4);
+            background: #2980b9;
+            border-color: #3498db;
+            box-shadow: 0 4px 0 #1a5276, 0 6px 10px rgba(0,0,0,0.5);
+        }
+
+        button.secondary:hover {
+            background: #3498db;
+            box-shadow: 0 6px 0 #1a5276, 0 8px 15px rgba(0,0,0,0.5);
+        }
+
+        button.secondary:active {
+            box-shadow: 0 2px 0 #1a5276, 0 4px 5px rgba(0,0,0,0.5);
         }
 
         #setup-screen {
@@ -179,7 +324,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #0a0a12;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -188,11 +333,18 @@
         }
 
         #setup-screen h1 {
-            font-size: 2.5em;
-            margin-bottom: 30px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(1.2em, 5vw, 2em);
+            margin-bottom: 40px;
             text-align: center;
-            color: #e94560;
-            text-shadow: 0 4px 15px rgba(233, 69, 96, 0.5);
+            color: #e74c3c;
+            text-shadow: 4px 4px 0 #000;
+            animation: pixelGlow 1s steps(2) infinite;
+        }
+
+        @keyframes pixelGlow {
+            0%, 100% { text-shadow: 4px 4px 0 #000, 0 0 20px rgba(231, 76, 60, 0.5); }
+            50% { text-shadow: 4px 4px 0 #000, 0 0 40px rgba(231, 76, 60, 0.8); }
         }
 
         .setup-section {
@@ -201,8 +353,11 @@
         }
 
         .setup-section h3 {
-            margin-bottom: 15px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7em;
+            margin-bottom: 20px;
             color: #fff;
+            text-shadow: 2px 2px 0 #000;
         }
 
         .player-select {
@@ -213,25 +368,31 @@
         }
 
         .player-option {
-            padding: 15px 25px;
-            background: #0f3460;
-            border: 3px solid transparent;
-            border-radius: 15px;
+            padding: 15px 20px;
+            background: #1a1a2e;
+            border: 3px solid #333;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.1s;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6em;
+        }
+
+        .player-option:hover {
+            border-color: #555;
+            transform: scale(1.05);
         }
 
         .player-option.selected {
-            border-color: #e94560;
-            background: #1a1a2e;
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+            border-color: #e74c3c;
+            background: #2a2a3e;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
         }
 
         .player-option .color {
             width: 30px;
             height: 30px;
-            border-radius: 50%;
-            margin: 0 auto 8px;
+            margin: 0 auto 10px;
+            border: 2px solid #fff;
         }
 
         #victory-screen {
@@ -240,7 +401,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -249,64 +410,125 @@
         }
 
         #victory-screen h2 {
-            font-size: 3em;
-            color: #e94560;
-            margin-bottom: 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(1.5em, 6vw, 2.5em);
+            color: #f1c40f;
+            margin-bottom: 30px;
+            text-shadow: 4px 4px 0 #000;
+            animation: pixelVictory 0.5s steps(2) infinite;
+        }
+
+        @keyframes pixelVictory {
+            0%, 100% { text-shadow: 4px 4px 0 #000, 0 0 30px rgba(241, 196, 15, 0.8); }
+            50% { text-shadow: 4px 4px 0 #000, 0 0 60px rgba(241, 196, 15, 1); }
         }
 
         #victory-screen p {
-            font-size: 1.5em;
-            margin-bottom: 30px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8em;
+            margin-bottom: 40px;
+            color: #fff;
+            text-shadow: 2px 2px 0 #000;
         }
 
         .stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 10px 0;
-            font-size: 0.9em;
+            gap: 8px;
+            margin: 5px 0;
         }
 
         .stat-item {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
+            background: #1a1a2e;
+            border: 2px solid #333;
+            padding: 6px 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55em;
+        }
+
+        .damage-popup {
+            position: absolute;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8em;
+            color: #e74c3c;
+            text-shadow: 2px 2px 0 #000;
+            animation: pixelDamage 1s steps(4) forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes pixelDamage {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-40px); opacity: 0; }
+        }
+
+        .reinforcement-toast {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            border: 3px solid #2ecc71;
+            padding: 12px 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6em;
+            box-shadow: 0 4px 0 #1e8449, 0 6px 20px rgba(0,0,0,0.5);
+            animation: pixelToast 3s steps(5) forwards;
+            z-index: 100;
+        }
+
+        @keyframes pixelToast {
+            0% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            10%, 90% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            #current-player { font-size: 0.6em; }
+            #turn-counter { font-size: 0.55em; }
+            button { font-size: 0.55em; padding: 10px 15px; }
+            .unit-counter { font-size: 0.5em; min-width: 14px; }
+            .stat-item { font-size: 0.45em; }
         }
     </style>
 </head>
 <body>
     <div id="setup-screen">
-        <h1>⚔️ Territory Battle</h1>
+        <h1>⚔️ TERRITORY BATTLE</h1>
         <div class="setup-section">
-            <h3>Nombre de joueurs</h3>
+            <h3>CHOISIS TON ROYAUME</h3>
             <div class="player-select">
                 <div class="player-option selected" data-players="2">
-                    <div class="color" style="background: linear-gradient(135deg, #e94560, #3498db);"></div>
-                    <div>2 Joueurs</div>
+                    <div class="color" style="background: #e74c3c; box-shadow: 0 0 10px #e74c3c;"></div>
+                    <div style="color: #e74c3c;">2 ROYAUMES</div>
                 </div>
                 <div class="player-option" data-players="3">
-                    <div class="color" style="background: linear-gradient(135deg, #e94560, #3498db, #2ecc71);"></div>
-                    <div>3 Joueurs</div>
+                    <div class="color" style="background: #3498db; box-shadow: 0 0 10px #3498db;"></div>
+                    <div style="color: #3498db;">3 ROYAUMES</div>
                 </div>
                 <div class="player-option" data-players="4">
-                    <div class="color" style="background: linear-gradient(135deg, #e94560, #3498db, #2ecc71, #f39c12);"></div>
-                    <div>4 Joueurs</div>
+                    <div class="color" style="background: #2ecc71; box-shadow: 0 0 10px #2ecc71;"></div>
+                    <div style="color: #2ecc71;">4 ROYAUMES</div>
                 </div>
             </div>
         </div>
-        <button onclick="startGame()" style="margin-top: 30px; font-size: 1.3em; padding: 15px 40px;">COMMENCER</button>
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button onclick="showLeaderboardUI()" style="font-size: 0.7em; background: #2980b9; border-color: #3498db; box-shadow: 0 4px 0 #1a5276;">🏆 CLASSEMENT</button>
+            <button onclick="showRegisterUI()" style="font-size: 0.8em;">⚔️ COMBATTRE</button>
+        </div>
+        <div id="current-player-display" style="margin-top: 20px; font-size: 0.6em; color: #888;"></div>
     </div>
 
     <div id="game-header">
         <div id="current-player">
             <span class="player-indicator" id="player-indicator"></span>
-            <span id="player-name">Joueur 1</span>
+            <span id="player-name">EMPIRE ROUGE</span>
         </div>
         <div class="stats">
             <div class="stat-item">🏰 <span id="territories">0</span></div>
             <div class="stat-item">⚔️ <span id="units">0</span></div>
         </div>
-        <div id="turn-counter">Tour 1</div>
+        <div id="turn-counter">TOUR 1</div>
     </div>
 
     <div id="game-container">
@@ -314,25 +536,53 @@
     </div>
 
     <div id="controls">
-        <button onclick="endTurn()">Terminer le tour</button>
-        <button class="secondary" onclick="showHelp()">Aide</button>
-        <button class="secondary" onclick="restartGame()">Rejouer</button>
+        <button onclick="endTurn()">⏭️ FIN TOUR</button>
+        <button class="secondary" onclick="showHelp()">❓ AIDE</button>
+        <button class="secondary" onclick="restartGame()">🔄 RESET</button>
     </div>
 
     <div id="victory-screen">
-        <h2>🏆 Victoire !</h2>
-        <p id="winner-name">Joueur 1 gagne !</p>
-        <button onclick="restartGame()">Nouvelle partie</button>
+        <h2>🏆 VICTOIRE!</h2>
+        <p id="winner-name">EMPIRE ROUGE GAGNE!</p>
+        <button onclick="restartGame()">🎮 REJOUER</button>
     </div>
 
     <script>
-        const BOARD_SIZE = 8;
+        const BOARD_SIZE = 12;
         const PLAYERS = [
-            { name: 'Rouge', color: '#e94560', class: 'player1' },
-            { name: 'Bleu', color: '#3498db', class: 'player2' },
-            { name: 'Vert', color: '#2ecc71', class: 'player3' },
-            { name: 'Orange', color: '#f39c12', class: 'player4' }
+            { name: 'EMPIRE ROUGE', color: '#e74c3c', class: 'player1' },
+            { name: 'ROYAUME BLEU', color: '#3498db', class: 'player2' },
+            { name: 'CLAN VERT', color: '#2ecc71', class: 'player3' },
+            { name: 'HORDE ORANGE', color: '#f39c12', class: 'player4' }
         ];
+
+        // SVG Sprites Pixel Art
+        const SPRITES = {
+            red: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#c0392b" x="6" y="4" width="4" height="8"/><rect fill="#e74c3c" x="5" y="2" width="6" height="4"/><rect fill="#f5b7b1" x="7" y="3" width="2" height="1"/><rect fill="#8b0000" x="6" y="12" width="1" height="2"/><rect fill="#8b0000" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#c0392b" x="6" y="3" width="4" height="9"/><rect fill="#e74c3c" x="4" y="2" width="8" height="4"/><rect fill="#f5b7b1" x="7" y="3" width="2" height="2"/><rect fill="#922b21" x="5" y="7" width="1" height="4"/><rect fill="#922b21" x="10" y="7" width="1" height="4"/><rect fill="#8b0000" x="6" y="12" width="1" height="2"/><rect fill="#8b0000" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#c0392b" x="6" y="2" width="4" height="10"/><rect fill="#e74c3c" x="4" y="1" width="8" height="4"/><rect fill="#f1c40f" x="6" y="0" width="4" height="2"/><rect fill="#f5b7b1" x="7" y="2" width="2" height="2"/><rect fill="#922b21" x="4" y="6" width="2" height="5"/><rect fill="#922b21" x="10" y="6" width="2" height="5"/><rect fill="#8b0000" x="5" y="12" width="2" height="3"/><rect fill="#8b0000" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#922b21" x="5" y="2" width="6" height="10"/><rect fill="#e74c3c" x="4" y="1" width="8" height="5"/><rect fill="#f1c40f" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#f5b7b1" x="6" y="2" width="4" height="2"/><rect fill="#c0392b" x="3" y="6" width="3" height="6"/><rect fill="#c0392b" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            },
+            blue: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2980b9" x="6" y="4" width="4" height="8"/><rect fill="#3498db" x="5" y="2" width="6" height="4"/><rect fill="#aed6f1" x="7" y="3" width="2" height="1"/><rect fill="#1a5276" x="6" y="12" width="1" height="2"/><rect fill="#1a5276" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2980b9" x="6" y="3" width="4" height="9"/><rect fill="#3498db" x="4" y="2" width="8" height="4"/><rect fill="#aed6f1" x="7" y="3" width="2" height="2"/><rect fill="#2471a3" x="5" y="7" width="1" height="4"/><rect fill="#2471a3" x="10" y="7" width="1" height="4"/><rect fill="#1a5276" x="6" y="12" width="1" height="2"/><rect fill="#1a5276" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2980b9" x="6" y="2" width="4" height="10"/><rect fill="#3498db" x="4" y="1" width="8" height="4"/><rect fill="#85c1e9" x="6" y="0" width="4" height="2"/><rect fill="#aed6f1" x="7" y="2" width="2" height="2"/><rect fill="#2471a3" x="4" y="6" width="2" height="5"/><rect fill="#2471a3" x="10" y="6" width="2" height="5"/><rect fill="#1a5276" x="5" y="12" width="2" height="3"/><rect fill="#1a5276" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2471a3" x="5" y="2" width="6" height="10"/><rect fill="#3498db" x="4" y="1" width="8" height="5"/><rect fill="#85c1e9" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#aed6f1" x="6" y="2" width="4" height="2"/><rect fill="#2980b9" x="3" y="6" width="3" height="6"/><rect fill="#2980b9" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            },
+            green: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#27ae60" x="6" y="4" width="4" height="8"/><rect fill="#2ecc71" x="5" y="2" width="6" height="4"/><rect fill="#a9dfbf" x="7" y="3" width="2" height="1"/><rect fill="#1e8449" x="6" y="12" width="1" height="2"/><rect fill="#1e8449" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#27ae60" x="6" y="3" width="4" height="9"/><rect fill="#2ecc71" x="4" y="2" width="8" height="4"/><rect fill="#a9dfbf" x="7" y="3" width="2" height="2"/><rect fill="#229954" x="5" y="7" width="1" height="4"/><rect fill="#229954" x="10" y="7" width="1" height="4"/><rect fill="#1e8449" x="6" y="12" width="1" height="2"/><rect fill="#1e8449" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#27ae60" x="6" y="2" width="4" height="10"/><rect fill="#2ecc71" x="4" y="1" width="8" height="4"/><rect fill="#58d68d" x="6" y="0" width="4" height="2"/><rect fill="#a9dfbf" x="7" y="2" width="2" height="2"/><rect fill="#229954" x="4" y="6" width="2" height="5"/><rect fill="#229954" x="10" y="6" width="2" height="5"/><rect fill="#1e8449" x="5" y="12" width="2" height="3"/><rect fill="#1e8449" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#229954" x="5" y="2" width="6" height="10"/><rect fill="#2ecc71" x="4" y="1" width="8" height="5"/><rect fill="#58d68d" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#a9dfbf" x="6" y="2" width="4" height="2"/><rect fill="#27ae60" x="3" y="6" width="3" height="6"/><rect fill="#27ae60" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            },
+            orange: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#d68910" x="6" y="4" width="4" height="8"/><rect fill="#f39c12" x="5" y="2" width="6" height="4"/><rect fill="#fdebd0" x="7" y="3" width="2" height="1"/><rect fill="#9c640c" x="6" y="12" width="1" height="2"/><rect fill="#9c640c" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#d68910" x="6" y="3" width="4" height="9"/><rect fill="#f39c12" x="4" y="2" width="8" height="4"/><rect fill="#fdebd0" x="7" y="3" width="2" height="2"/><rect fill="#b9770e" x="5" y="7" width="1" height="4"/><rect fill="#b9770e" x="10" y="7" width="1" height="4"/><rect fill="#9c640c" x="6" y="12" width="1" height="2"/><rect fill="#9c640c" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#d68910" x="6" y="2" width="4" height="10"/><rect fill="#f39c12" x="4" y="1" width="8" height="4"/><rect fill="#f5b041" x="6" y="0" width="4" height="2"/><rect fill="#fdebd0" x="7" y="2" width="2" height="2"/><rect fill="#b9770e" x="4" y="6" width="2" height="5"/><rect fill="#b9770e" x="10" y="6" width="2" height="5"/><rect fill="#9c640c" x="5" y="12" width="2" height="3"/><rect fill="#9c640c" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#b9770e" x="5" y="2" width="6" height="10"/><rect fill="#f39c12" x="4" y="1" width="8" height="5"/><rect fill="#f5b041" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#fdebd0" x="6" y="2" width="4" height="2"/><rect fill="#d68910" x="3" y="6" width="3" height="6"/><rect fill="#d68910" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            }
+        };
 
         let numPlayers = 2;
         let currentPlayer = 0;
@@ -340,9 +590,7 @@
         let board = [];
         let selectedUnit = null;
         let gameEnded = false;
-        let playerStats = [];
 
-        // Sélection du nombre de joueurs
         document.querySelectorAll('.player-option').forEach(option => {
             option.addEventListener('click', () => {
                 document.querySelectorAll('.player-option').forEach(o => o.classList.remove('selected'));
@@ -350,6 +598,16 @@
                 numPlayers = parseInt(option.dataset.players);
             });
         });
+
+        function getSprite(playerIndex, unitCount) {
+            const colors = ['red', 'blue', 'green', 'orange'];
+            const color = colors[playerIndex];
+            if (unitCount >= 8) return SPRITES[color].king;
+            if (unitCount >= 6) return SPRITES[color][3];
+            if (unitCount >= 4) return SPRITES[color][2];
+            if (unitCount >= 2) return SPRITES[color][1];
+            return SPRITES[color][1];
+        }
 
         function startGame() {
             document.getElementById('setup-screen').style.display = 'none';
@@ -361,42 +619,32 @@
             currentPlayer = 0;
             turn = 1;
             gameEnded = false;
-            playerStats = PLAYERS.map(() => ({ territories: 0, units: 0 }));
             
-            // Créer le plateau
             for (let y = 0; y < BOARD_SIZE; y++) {
                 let row = [];
                 for (let x = 0; x < BOARD_SIZE; x++) {
-                    let cell = {
-                        x, y,
-                        player: null,
-                        units: 0,
-                        terrain: 'normal'
-                    };
-                    
-                    // Ajouter des terrains spéciaux aléatoirement
+                    let cell = { x, y, player: null, units: 0, terrain: 'normal' };
                     const rand = Math.random();
-                    if (rand < 0.1) cell.terrain = 'mountain';
-                    else if (rand < 0.15) cell.terrain = 'forest';
-                    else if (rand < 0.08) cell.terrain = 'water';
-                    
+                    if (rand < 0.06) cell.terrain = 'mountain';
+                    else if (rand < 0.10) cell.terrain = 'forest';
+                    else if (rand < 0.05) cell.terrain = 'water';
+                    else if (rand < 0.03) cell.terrain = 'castle';
                     row.push(cell);
                 }
                 board.push(row);
             }
             
-            // Positionner les unités initiales
             const startPositions = [
-                [{x: 0, y: 0}, {x: 1, y: 0}, {x: 0, y: 1}],
-                [{x: 7, y: 7}, {x: 6, y: 7}, {x: 7, y: 6}],
-                [{x: 7, y: 0}, {x: 6, y: 0}, {x: 7, y: 1}],
-                [{x: 0, y: 7}, {x: 1, y: 7}, {x: 0, y: 6}]
+                [{x: 0, y: 0}, {x: 1, y: 0}, {x: 0, y: 1}, {x: 1, y: 1}],
+                [{x: 11, y: 11}, {x: 10, y: 11}, {x: 11, y: 10}, {x: 10, y: 10}],
+                [{x: 11, y: 0}, {x: 10, y: 0}, {x: 11, y: 1}, {x: 10, y: 1}],
+                [{x: 0, y: 11}, {x: 1, y: 11}, {x: 0, y: 10}, {x: 1, y: 10}]
             ];
             
             for (let i = 0; i < numPlayers; i++) {
-                startPositions[i].forEach(pos => {
+                startPositions[i].forEach((pos, idx) => {
                     board[pos.y][pos.x].player = i;
-                    board[pos.y][pos.x].units = 3;
+                    board[pos.y][pos.x].units = idx === 0 ? 5 : 3;
                 });
             }
             
@@ -419,6 +667,7 @@
                     if (cell.terrain === 'mountain') cellEl.classList.add('terrain-mountain');
                     if (cell.terrain === 'forest') cellEl.classList.add('terrain-forest');
                     if (cell.terrain === 'water') cellEl.classList.add('terrain-water');
+                    if (cell.terrain === 'castle') cellEl.classList.add('terrain-castle');
                     
                     if (selectedUnit && selectedUnit.x === x && selectedUnit.y === y) {
                         cellEl.classList.add('selected');
@@ -426,8 +675,14 @@
                     
                     if (cell.player !== null) {
                         const unitEl = document.createElement('div');
-                        unitEl.className = `unit ${PLAYERS[cell.player].class}`;
-                        unitEl.textContent = cell.units;
+                        unitEl.className = 'unit';
+                        unitEl.innerHTML = getSprite(cell.player, cell.units);
+                        
+                        const counter = document.createElement('div');
+                        counter.className = 'unit-counter';
+                        counter.textContent = cell.units;
+                        unitEl.appendChild(counter);
+                        
                         cellEl.appendChild(unitEl);
                     }
                     
@@ -437,12 +692,33 @@
             }
         }
 
+        function showDamagePopup(x, y, damage) {
+            const boardEl = document.getElementById('game-board');
+            const popup = document.createElement('div');
+            popup.className = 'damage-popup';
+            popup.textContent = `-${damage}`;
+            popup.style.left = `${(x / BOARD_SIZE * 100) + (50 / BOARD_SIZE)}%`;
+            popup.style.top = `${(y / BOARD_SIZE * 100) + (50 / BOARD_SIZE)}%`;
+            boardEl.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        function showReinforcementToast(count) {
+            const existing = document.querySelector('.reinforcement-toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'reinforcement-toast';
+            toast.textContent = `+${count} RENFORTS!`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
         function handleCellClick(x, y) {
             if (gameEnded) return;
             
             const cell = board[y][x];
             
-            // Sélectionner une unité
             if (cell.player === currentPlayer && cell.units > 0) {
                 selectedUnit = { x, y };
                 renderBoard();
@@ -450,23 +726,19 @@
                 return;
             }
             
-            // Déplacer ou attaquer
             if (selectedUnit) {
                 const dx = Math.abs(x - selectedUnit.x);
                 const dy = Math.abs(y - selectedUnit.y);
                 
-                // Vérifier si le mouvement est valide (distance 1)
                 if (dx <= 1 && dy <= 1 && (dx + dy) > 0) {
                     const fromCell = board[selectedUnit.y][selectedUnit.x];
                     
-                    // Terrain infranchissable
                     if (cell.terrain === 'water' || cell.terrain === 'mountain') {
                         selectedUnit = null;
                         renderBoard();
                         return;
                     }
                     
-                    // Déplacement sur case vide
                     if (cell.player === null) {
                         cell.player = currentPlayer;
                         cell.units = fromCell.units - 1;
@@ -477,10 +749,11 @@
                             cell.units = 0;
                         }
                     }
-                    // Attaque
                     else if (cell.player !== currentPlayer) {
                         const attackBonus = fromCell.units;
-                        const defenseBonus = cell.terrain === 'forest' ? 1 : 0;
+                        const defenseBonus = (cell.terrain === 'forest' || cell.terrain === 'castle') ? 1 : 0;
+                        
+                        showDamagePopup(x, y, attackBonus);
                         
                         if (attackBonus > cell.units + defenseBonus) {
                             cell.player = currentPlayer;
@@ -489,12 +762,9 @@
                         } else {
                             cell.units = Math.max(0, cell.units - attackBonus);
                             fromCell.units = 1;
-                            if (cell.units === 0) {
-                                cell.player = null;
-                            }
+                            if (cell.units === 0) cell.player = null;
                         }
                     }
-                    // Fusion d'unités alliées
                     else if (cell.player === currentPlayer) {
                         cell.units = Math.min(9, cell.units + fromCell.units - 1);
                         fromCell.units = 1;
@@ -535,14 +805,19 @@
         function endTurn() {
             if (gameEnded) return;
             
-            // Renforcement: +1 unité par territoire contrôlé
+            let reinforcements = 0;
             for (let y = 0; y < BOARD_SIZE; y++) {
                 for (let x = 0; x < BOARD_SIZE; x++) {
                     const cell = board[y][x];
                     if (cell.player === currentPlayer && cell.units > 0 && cell.units < 9) {
                         cell.units++;
+                        reinforcements++;
                     }
                 }
+            }
+            
+            if (reinforcements > 0) {
+                showReinforcementToast(reinforcements);
             }
             
             currentPlayer = (currentPlayer + 1) % numPlayers;
@@ -555,11 +830,12 @@
 
         function updateUI() {
             const player = PLAYERS[currentPlayer];
-            document.getElementById('player-indicator').style.background = player.color;
+            const indicator = document.getElementById('player-indicator');
+            indicator.style.background = player.color;
+            indicator.style.borderColor = player.color;
             document.getElementById('player-name').textContent = player.name;
-            document.getElementById('turn-counter').textContent = `Tour ${turn}`;
+            document.getElementById('turn-counter').textContent = `TOUR ${turn}`;
             
-            // Calculer les stats
             let territories = 0;
             let units = 0;
             
@@ -590,9 +866,37 @@
             
             if (alivePlayers.size === 1) {
                 const winner = [...alivePlayers][0];
-                document.getElementById('winner-name').textContent = `${PLAYERS[winner].name} gagne !`;
+                const won = (winner === 0); // Joueur 0 est le joueur humain
+                
+                document.getElementById('winner-name').textContent = `${PLAYERS[winner].name} GAGNE!`;
                 document.getElementById('victory-screen').style.display = 'flex';
                 gameEnded = true;
+                
+                // Calculer le score et soumettre
+                let totalTerritories = 0;
+                let totalUnits = 0;
+                let unitsKilled = turn * 5; // Estimation
+                
+                for (let y = 0; y < BOARD_SIZE; y++) {
+                    for (let x = 0; x < BOARD_SIZE; x++) {
+                        if (board[y][x].player === winner) {
+                            totalTerritories++;
+                            totalUnits += board[y][x].units;
+                        }
+                    }
+                }
+                
+                const score = totalTerritories * 100 + totalUnits * 10 + (won ? 1000 : 0);
+                
+                // Soumettre au leaderboard si disponible
+                if (typeof submitGameResult === 'function') {
+                    submitGameResult(score, won, {
+                        territories_conquered: totalTerritories,
+                        units_lost: 0,
+                        units_killed: unitsKilled,
+                        turns_played: turn
+                    });
+                }
             }
         }
 
@@ -602,27 +906,34 @@
         }
 
         function showHelp() {
-            alert(`🎮 RÈGLES DU JEU :
+            alert(`TERRITORY BATTLE - REGLES
 
-⚔️ OBJECTIF : Éliminer tous les adversaires
+OBJECTIF: Conquerir tous les territoires!
 
-📱 CONTRÔLES :
-• Touche une unité pour la sélectionner
-• Touche une case adjacente pour déplacer/attaquer
-• "Terminer le tour" pour passer au joueur suivant
+CONTROLES:
+• Selectionne une unite pour la deplacer
+• Vert = Deplacement possible
+• Rouge = Attaque possible
 
-🎯 RÈGLES :
-• Déplacement : 1 case par tour
-• Combat : L'attaquant gagne si supérieur en nombre
-• Forêt : Bonus défensif (+1)
-• Montagne/Eau : Infranchissable
-• Renforcement : +1 unité par tour sur chaque territoire
+COMBAT:
+• Attaquant gagne si superieur
+• Foret/Chateau = +1 defense
+• Max 9 unites par case
 
-💡 ASTUCE : Fusionne tes unités pour créer des groupes puissants (max 9) !`);
+RENFORTS: +1 unite par tour!`);
         }
 
-        // Initialisation
+        // Afficher le pseudo du joueur sur l'écran d'accueil
+        const savedPseudo = localStorage.getItem('tb_player_pseudo');
+        if (savedPseudo) {
+            const display = document.getElementById('current-player-display');
+            if (display) {
+                display.innerHTML = `👤 Joueur: <span style="color: #f1c40f;">${savedPseudo}</span>`;
+            }
+        }
+        
         renderBoard();
     </script>
+    <script src="leaderboard.js"></script>
 </body>
 </html>
