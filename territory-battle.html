@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Territory Battle - Jeu de Stratégie</title>
+    <title>⚔️ Territory Battle - Jeu de Stratégie</title>
     <style>
         * {
             margin: 0;
@@ -15,9 +15,11 @@
             user-select: none;
         }
 
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;700&display=swap');
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3e 50%, #0f0f2e 100%);
             color: #fff;
             overflow: hidden;
             height: 100vh;
@@ -26,31 +28,43 @@
         }
 
         #game-header {
-            background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
+            background: linear-gradient(90deg, rgba(233, 69, 96, 0.2), rgba(52, 152, 219, 0.2));
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #e94560;
+            border-bottom: 3px solid #e94560;
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.3);
         }
 
         #current-player {
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .player-indicator {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid #fff;
+            border: 3px solid #fff;
+            box-shadow: 0 0 15px currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 15px currentColor; transform: scale(1); }
+            50% { box-shadow: 0 0 25px currentColor; transform: scale(1.1); }
         }
 
         #turn-counter {
-            font-size: 1.1em;
-            color: #e94560;
+            font-size: 1.2em;
+            color: #f39c12;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
         }
 
         #game-container {
@@ -65,112 +79,223 @@
         #game-board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            gap: 3px;
-            background: #0f3460;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            gap: 4px;
+            background: linear-gradient(145deg, #1a1a3e, #0f0f2e);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 2px 10px rgba(255,255,255,0.05);
             max-width: 95vmin;
             max-height: 95vmin;
+            border: 2px solid rgba(233, 69, 96, 0.3);
         }
 
         .cell {
             aspect-ratio: 1;
-            background: #1a1a2e;
-            border-radius: 5px;
+            background: linear-gradient(145deg, #2a2a4e, #1e1e3e);
+            border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5em;
+            font-size: 1.8em;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid transparent;
             position: relative;
+            overflow: hidden;
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+
+        .cell:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
         .cell:active {
-            transform: scale(0.95);
+            transform: scale(0.95) translateY(0);
         }
 
         .cell.selected {
             border-color: #fff;
-            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            box-shadow: 0 0 25px rgba(255,255,255,0.6), inset 0 0 20px rgba(255,255,255,0.1);
+            animation: selectedPulse 1s infinite;
+        }
+
+        @keyframes selectedPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .cell.valid-move {
-            background: #2ecc71;
-            opacity: 0.8;
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            animation: validMove 1.5s infinite;
+        }
+
+        @keyframes validMove {
+            0%, 100% { opacity: 0.7; box-shadow: 0 0 10px #2ecc71; }
+            50% { opacity: 1; box-shadow: 0 0 20px #2ecc71; }
         }
 
         .cell.attack-target {
-            background: #e74c3c;
-            opacity: 0.8;
+            background: linear-gradient(145deg, #c0392b, #e74c3c);
+            animation: attackTarget 0.8s infinite;
+        }
+
+        @keyframes attackTarget {
+            0%, 100% { opacity: 0.8; box-shadow: 0 0 15px #e74c3c; }
+            50% { opacity: 1; box-shadow: 0 0 30px #e74c3c; }
         }
 
         .unit {
-            width: 80%;
-            height: 80%;
-            border-radius: 50%;
+            width: 85%;
+            height: 85%;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 0.8em;
-            border: 3px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            font-size: 0.7em;
+            border: 3px solid rgba(255,255,255,0.4);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+            position: relative;
+            animation: unitFloat 3s ease-in-out infinite;
         }
 
-        .unit.player1 { background: linear-gradient(135deg, #e94560, #c73e54); }
-        .unit.player2 { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .unit.player3 { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .unit.player4 { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        @keyframes unitFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .unit::before {
+            content: attr(data-count);
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: #fff;
+            color: #000;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 2px solid currentColor;
+        }
+
+        .unit.player1 { 
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            color: #e94560;
+        }
+        .unit.player1::after { content: '🛡️'; font-size: 1.2em; }
+
+        .unit.player2 { 
+            background: linear-gradient(135deg, #3498db, #5dade2);
+            color: #3498db;
+        }
+        .unit.player2::after { content: '⚔️'; font-size: 1.2em; }
+
+        .unit.player3 { 
+            background: linear-gradient(135deg, #2ecc71, #58d68d);
+            color: #2ecc71;
+        }
+        .unit.player3::after { content: '🏹'; font-size: 1.2em; }
+
+        .unit.player4 { 
+            background: linear-gradient(135deg, #f39c12, #f5b041);
+            color: #f39c12;
+        }
+        .unit.player4::after { content: '⚒️'; font-size: 1.2em; }
 
         .terrain-mountain {
-            background: #5d4037 !important;
+            background: linear-gradient(145deg, #5d4037, #8d6e63) !important;
         }
+        .terrain-mountain::after { content: '⛰️'; font-size: 1.3em; position: absolute; opacity: 0.8; }
 
         .terrain-forest {
-            background: #1b5e20 !important;
+            background: linear-gradient(145deg, #1b5e20, #2e7d32) !important;
         }
+        .terrain-forest::after { content: '🌲'; font-size: 1.3em; position: absolute; opacity: 0.8; }
 
         .terrain-water {
-            background: #01579b !important;
+            background: linear-gradient(145deg, #01579b, #0277bd) !important;
+            animation: waterWave 3s ease-in-out infinite;
         }
+        @keyframes waterWave {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .terrain-water::after { content: '🌊'; font-size: 1.3em; position: absolute; opacity: 0.8; }
 
         #controls {
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.4), rgba(233, 69, 96, 0.1));
+            padding: 18px;
             display: flex;
             justify-content: center;
             gap: 15px;
-            border-top: 2px solid #e94560;
+            border-top: 3px solid #e94560;
+            box-shadow: 0 -4px 20px rgba(233, 69, 96, 0.2);
         }
 
         button {
-            background: linear-gradient(135deg, #e94560, #c73e54);
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
             color: #fff;
             border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
+            padding: 14px 28px;
+            border-radius: 30px;
             font-size: 1em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.6);
         }
 
         button:active {
-            transform: translateY(0);
+            transform: translateY(-1px) scale(0.98);
         }
 
         button.secondary {
-            background: linear-gradient(135deg, #0f3460, #16213e);
-            box-shadow: 0 4px 15px rgba(15, 52, 96, 0.4);
+            background: linear-gradient(135deg, #0f3460, #1a5276);
+            box-shadow: 0 6px 20px rgba(15, 52, 96, 0.4);
+        }
+
+        button.secondary:hover {
+            box-shadow: 0 10px 30px rgba(15, 52, 96, 0.6);
         }
 
         #setup-screen {
@@ -179,59 +304,88 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3e 50%, #0f0f2e 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         #setup-screen h1 {
-            font-size: 2.5em;
-            margin-bottom: 30px;
+            font-family: 'Cinzel', serif;
+            font-size: 3.5em;
+            margin-bottom: 40px;
             text-align: center;
             color: #e94560;
-            text-shadow: 0 4px 15px rgba(233, 69, 96, 0.5);
+            text-shadow: 0 4px 20px rgba(233, 69, 96, 0.6);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 4px 20px rgba(233, 69, 96, 0.6); }
+            50% { text-shadow: 0 4px 40px rgba(233, 69, 96, 0.9), 0 0 60px rgba(233, 69, 96, 0.4); }
         }
 
         .setup-section {
-            margin: 20px 0;
+            margin: 25px 0;
             text-align: center;
         }
 
         .setup-section h3 {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: #fff;
+            font-size: 1.3em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .player-select {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .player-option {
-            padding: 15px 25px;
-            background: #0f3460;
+            padding: 20px 30px;
+            background: linear-gradient(145deg, #1a1a3e, #0f0f2e);
             border: 3px solid transparent;
-            border-radius: 15px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .player-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
         .player-option.selected {
             border-color: #e94560;
-            background: #1a1a2e;
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+            background: linear-gradient(145deg, #2a2a4e, #1e1e3e);
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+            transform: scale(1.05);
         }
 
         .player-option .color {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            margin: 0 auto 8px;
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .player-option div:last-child {
+            font-weight: bold;
+            font-size: 1.1em;
         }
 
         #victory-screen {
@@ -240,37 +394,126 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 2000;
+            animation: victoryFadeIn 0.8s ease-out;
+        }
+
+        @keyframes victoryFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         #victory-screen h2 {
-            font-size: 3em;
-            color: #e94560;
+            font-family: 'Cinzel', serif;
+            font-size: 4em;
+            color: #f1c40f;
             margin-bottom: 20px;
+            text-shadow: 0 0 40px rgba(241, 196, 15, 0.8);
+            animation: victoryGlow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes victoryGlow {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 40px rgba(241, 196, 15, 0.8); }
+            50% { transform: scale(1.1); text-shadow: 0 0 80px rgba(241, 196, 15, 1); }
         }
 
         #victory-screen p {
-            font-size: 1.5em;
-            margin-bottom: 30px;
+            font-size: 1.8em;
+            margin-bottom: 40px;
+            color: #fff;
         }
 
         .stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 12px;
             margin: 10px 0;
-            font-size: 0.9em;
+            font-size: 1em;
         }
 
         .stat-item {
             background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .attack-animation {
+            animation: attackShake 0.5s ease-in-out;
+        }
+
+        @keyframes attackShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+
+        .damage-popup {
+            position: absolute;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+            animation: damageFloat 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes damageFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .reinforcement-toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+            animation: toastSlide 3s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes toastSlide {
+            0% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            10%, 90% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            #setup-screen h1 { font-size: 2.5em; }
+            #victory-screen h2 { font-size: 2.5em; }
+            .unit::before { width: 18px; height: 18px; font-size: 0.65em; }
+            button { padding: 12px 20px; font-size: 0.9em; }
         }
     </style>
 </head>
@@ -294,7 +537,7 @@
                 </div>
             </div>
         </div>
-        <button onclick="startGame()" style="margin-top: 30px; font-size: 1.3em; padding: 15px 40px;">COMMENCER</button>
+        <button onclick="startGame()" style="margin-top: 40px; font-size: 1.4em; padding: 18px 50px;">⚔️ COMMENCER</button>
     </div>
 
     <div id="game-header">
@@ -314,24 +557,24 @@
     </div>
 
     <div id="controls">
-        <button onclick="endTurn()">Terminer le tour</button>
-        <button class="secondary" onclick="showHelp()">Aide</button>
-        <button class="secondary" onclick="restartGame()">Rejouer</button>
+        <button onclick="endTurn()">⏭️ Terminer le tour</button>
+        <button class="secondary" onclick="showHelp()">❓ Aide</button>
+        <button class="secondary" onclick="restartGame()">🔄 Rejouer</button>
     </div>
 
     <div id="victory-screen">
         <h2>🏆 Victoire !</h2>
         <p id="winner-name">Joueur 1 gagne !</p>
-        <button onclick="restartGame()">Nouvelle partie</button>
+        <button onclick="restartGame()">🎮 Nouvelle partie</button>
     </div>
 
     <script>
         const BOARD_SIZE = 8;
         const PLAYERS = [
-            { name: 'Rouge', color: '#e94560', class: 'player1' },
-            { name: 'Bleu', color: '#3498db', class: 'player2' },
-            { name: 'Vert', color: '#2ecc71', class: 'player3' },
-            { name: 'Orange', color: '#f39c12', class: 'player4' }
+            { name: 'Empire Rouge', color: '#e94560', class: 'player1', emoji: '🛡️' },
+            { name: 'Royaume Bleu', color: '#3498db', class: 'player2', emoji: '⚔️' },
+            { name: 'Clan Vert', color: '#2ecc71', class: 'player3', emoji: '🏹' },
+            { name: 'Horde Orange', color: '#f39c12', class: 'player4', emoji: '⚒️' }
         ];
 
         let numPlayers = 2;
@@ -342,7 +585,6 @@
         let gameEnded = false;
         let playerStats = [];
 
-        // Sélection du nombre de joueurs
         document.querySelectorAll('.player-option').forEach(option => {
             option.addEventListener('click', () => {
                 document.querySelectorAll('.player-option').forEach(o => o.classList.remove('selected'));
@@ -363,29 +605,19 @@
             gameEnded = false;
             playerStats = PLAYERS.map(() => ({ territories: 0, units: 0 }));
             
-            // Créer le plateau
             for (let y = 0; y < BOARD_SIZE; y++) {
                 let row = [];
                 for (let x = 0; x < BOARD_SIZE; x++) {
-                    let cell = {
-                        x, y,
-                        player: null,
-                        units: 0,
-                        terrain: 'normal'
-                    };
-                    
-                    // Ajouter des terrains spéciaux aléatoirement
+                    let cell = { x, y, player: null, units: 0, terrain: 'normal' };
                     const rand = Math.random();
-                    if (rand < 0.1) cell.terrain = 'mountain';
-                    else if (rand < 0.15) cell.terrain = 'forest';
-                    else if (rand < 0.08) cell.terrain = 'water';
-                    
+                    if (rand < 0.08) cell.terrain = 'mountain';
+                    else if (rand < 0.12) cell.terrain = 'forest';
+                    else if (rand < 0.06) cell.terrain = 'water';
                     row.push(cell);
                 }
                 board.push(row);
             }
             
-            // Positionner les unités initiales
             const startPositions = [
                 [{x: 0, y: 0}, {x: 1, y: 0}, {x: 0, y: 1}],
                 [{x: 7, y: 7}, {x: 6, y: 7}, {x: 7, y: 6}],
@@ -427,7 +659,7 @@
                     if (cell.player !== null) {
                         const unitEl = document.createElement('div');
                         unitEl.className = `unit ${PLAYERS[cell.player].class}`;
-                        unitEl.textContent = cell.units;
+                        unitEl.setAttribute('data-count', cell.units);
                         cellEl.appendChild(unitEl);
                     }
                     
@@ -437,12 +669,48 @@
             }
         }
 
+        function showDamagePopup(x, y, damage) {
+            const boardEl = document.getElementById('game-board');
+            const popup = document.createElement('div');
+            popup.className = 'damage-popup';
+            popup.textContent = `-${damage}`;
+            popup.style.left = `${(x * 12.5) + 6}%`;
+            popup.style.top = `${(y * 12.5) + 6}%`;
+            boardEl.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        function createConfetti() {
+            const colors = ['#e94560', '#3498db', '#2ecc71', '#f39c12', '#f1c40f'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
+        function showReinforcementToast(count) {
+            const existing = document.querySelector('.reinforcement-toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'reinforcement-toast';
+            toast.textContent = `⚔️ +${count} renforts déployés !`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
         function handleCellClick(x, y) {
             if (gameEnded) return;
             
             const cell = board[y][x];
             
-            // Sélectionner une unité
             if (cell.player === currentPlayer && cell.units > 0) {
                 selectedUnit = { x, y };
                 renderBoard();
@@ -450,23 +718,19 @@
                 return;
             }
             
-            // Déplacer ou attaquer
             if (selectedUnit) {
                 const dx = Math.abs(x - selectedUnit.x);
                 const dy = Math.abs(y - selectedUnit.y);
                 
-                // Vérifier si le mouvement est valide (distance 1)
                 if (dx <= 1 && dy <= 1 && (dx + dy) > 0) {
                     const fromCell = board[selectedUnit.y][selectedUnit.x];
                     
-                    // Terrain infranchissable
                     if (cell.terrain === 'water' || cell.terrain === 'mountain') {
                         selectedUnit = null;
                         renderBoard();
                         return;
                     }
                     
-                    // Déplacement sur case vide
                     if (cell.player === null) {
                         cell.player = currentPlayer;
                         cell.units = fromCell.units - 1;
@@ -477,10 +741,11 @@
                             cell.units = 0;
                         }
                     }
-                    // Attaque
                     else if (cell.player !== currentPlayer) {
                         const attackBonus = fromCell.units;
                         const defenseBonus = cell.terrain === 'forest' ? 1 : 0;
+                        
+                        showDamagePopup(x, y, attackBonus);
                         
                         if (attackBonus > cell.units + defenseBonus) {
                             cell.player = currentPlayer;
@@ -489,12 +754,9 @@
                         } else {
                             cell.units = Math.max(0, cell.units - attackBonus);
                             fromCell.units = 1;
-                            if (cell.units === 0) {
-                                cell.player = null;
-                            }
+                            if (cell.units === 0) cell.player = null;
                         }
                     }
-                    // Fusion d'unités alliées
                     else if (cell.player === currentPlayer) {
                         cell.units = Math.min(9, cell.units + fromCell.units - 1);
                         fromCell.units = 1;
@@ -535,14 +797,19 @@
         function endTurn() {
             if (gameEnded) return;
             
-            // Renforcement: +1 unité par territoire contrôlé
+            let reinforcements = 0;
             for (let y = 0; y < BOARD_SIZE; y++) {
                 for (let x = 0; x < BOARD_SIZE; x++) {
                     const cell = board[y][x];
                     if (cell.player === currentPlayer && cell.units > 0 && cell.units < 9) {
                         cell.units++;
+                        reinforcements++;
                     }
                 }
+            }
+            
+            if (reinforcements > 0) {
+                showReinforcementToast(reinforcements);
             }
             
             currentPlayer = (currentPlayer + 1) % numPlayers;
@@ -555,11 +822,12 @@
 
         function updateUI() {
             const player = PLAYERS[currentPlayer];
-            document.getElementById('player-indicator').style.background = player.color;
+            const indicator = document.getElementById('player-indicator');
+            indicator.style.background = player.color;
+            indicator.style.color = player.color;
             document.getElementById('player-name').textContent = player.name;
             document.getElementById('turn-counter').textContent = `Tour ${turn}`;
             
-            // Calculer les stats
             let territories = 0;
             let units = 0;
             
@@ -593,6 +861,7 @@
                 document.getElementById('winner-name').textContent = `${PLAYERS[winner].name} gagne !`;
                 document.getElementById('victory-screen').style.display = 'flex';
                 gameEnded = true;
+                createConfetti();
             }
         }
 
@@ -602,26 +871,26 @@
         }
 
         function showHelp() {
-            alert(`🎮 RÈGLES DU JEU :
+            alert(`🎮 RÈGLES DU JEU TERRITORY BATTLE
 
 ⚔️ OBJECTIF : Éliminer tous les adversaires
 
 📱 CONTRÔLES :
 • Touche une unité pour la sélectionner
-• Touche une case adjacente pour déplacer/attaquer
+• Cases vertes = déplacement possible
+• Cases rouges = attaque possible
 • "Terminer le tour" pour passer au joueur suivant
 
 🎯 RÈGLES :
 • Déplacement : 1 case par tour
 • Combat : L'attaquant gagne si supérieur en nombre
-• Forêt : Bonus défensif (+1)
-• Montagne/Eau : Infranchissable
+• Forêt 🌲 : Bonus défensif (+1)
+• Montagne ⛰️ / Eau 🌊 : Infranchissable
 • Renforcement : +1 unité par tour sur chaque territoire
 
 💡 ASTUCE : Fusionne tes unités pour créer des groupes puissants (max 9) !`);
         }
 
-        // Initialisation
         renderBoard();
     </script>
 </body>
