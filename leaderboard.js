@@ -4,8 +4,8 @@
 (function() {
   'use strict';
 
-  // Configuration
-  const API_BASE_URL = 'https://territory-battle-api.clawdgtko.workers.dev';
+  // Configuration - API hébergée sur le même domaine via Pages Functions
+  const API_BASE_URL = '';
   
   // Classe API
   class LeaderboardAPI {
