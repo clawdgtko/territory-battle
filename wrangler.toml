@@ -1,0 +1,7 @@
+name = "territory-battle"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "territory-battle-db"
+database_id = "18d241ad-9c43-4715-83cf-65c04ce1e6ae"
