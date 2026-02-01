@@ -15,11 +15,11 @@
             user-select: none;
         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
 
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #0a0a15 0%, #151530 50%, #0a0a20 100%);
+            background: #0a0a12;
             color: #fff;
             overflow: hidden;
             height: 100vh;
@@ -27,7 +27,7 @@
             flex-direction: column;
         }
 
-        /* Animated background */
+        /* Animated CRT scanline effect */
         body::before {
             content: '';
             position: fixed;
@@ -36,58 +36,64 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(ellipse at 20% 80%, rgba(233, 69, 96, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(243, 156, 18, 0.05) 0%, transparent 70%);
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 6px 100%;
             pointer-events: none;
-            animation: bgShift 20s ease-in-out infinite;
+            z-index: 9999;
         }
 
-        @keyframes bgShift {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(2deg); }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+            z-index: 9998;
         }
 
         #game-header {
-            background: linear-gradient(90deg, rgba(0,0,0,0.6), rgba(233, 69, 96, 0.2), rgba(0,0,0,0.6));
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
             padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid #e94560;
-            box-shadow: 0 4px 30px rgba(233, 69, 96, 0.4);
-            backdrop-filter: blur(10px);
-            z-index: 10;
+            border-bottom: 4px solid #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 100;
         }
 
         #current-player {
-            font-size: 1.2em;
-            font-weight: bold;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.75em;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .player-indicator {
-            display: inline-block;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 3px solid #fff;
-            box-shadow: 0 0 20px currentColor;
-            animation: pulse 2s infinite;
+            width: 24px;
+            height: 24px;
+            image-rendering: pixelated;
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px currentColor;
+            animation: pixelPulse 1s steps(2) infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 15px currentColor; transform: scale(1); }
-            50% { box-shadow: 0 0 30px currentColor; transform: scale(1.15); }
+        @keyframes pixelPulse {
+            0%, 100% { box-shadow: 0 0 10px currentColor; }
+            50% { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
         }
 
         #turn-counter {
-            font-size: 1.1em;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7em;
             color: #f1c40f;
-            font-weight: bold;
-            text-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+            text-shadow: 2px 2px 0 #000;
         }
 
         #game-container {
@@ -95,278 +101,221 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 8px;
+            padding: 10px;
             position: relative;
+            background: #0a0a12;
         }
 
         #game-board {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             gap: 2px;
-            background: linear-gradient(145deg, #1a1a3e, #0d0d1f);
-            padding: 12px;
-            border-radius: 12px;
+            background: #1a1a2e;
+            padding: 8px;
+            border: 4px solid #333;
             box-shadow: 
-                0 20px 60px rgba(0,0,0,0.8),
-                inset 0 2px 10px rgba(255,255,255,0.05),
-                0 0 0 2px rgba(233, 69, 96, 0.3);
+                0 0 0 2px #1a1a2e,
+                0 0 0 4px #333,
+                0 20px 60px rgba(0,0,0,0.9);
             max-width: 98vmin;
             max-height: 85vh;
-            border: 2px solid rgba(233, 69, 96, 0.2);
         }
 
         .cell {
             aspect-ratio: 1;
-            background: linear-gradient(145deg, #252550, #1a1a40);
-            border-radius: 6px;
+            background: #2a2a3e;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: clamp(1em, 3vmin, 1.5em);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
+            transition: all 0.1s;
+            border: 1px solid #3a3a4e;
             position: relative;
             overflow: hidden;
             min-width: 0;
             min-height: 0;
         }
 
-        .cell::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent);
-            pointer-events: none;
-        }
-
         .cell:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-            z-index: 5;
-        }
-
-        .cell:active {
-            transform: scale(0.95);
+            background: #3a3a4e;
+            border-color: #555;
+            z-index: 10;
         }
 
         .cell.selected {
+            background: #4a4a5e;
             border-color: #fff;
-            box-shadow: 0 0 30px rgba(255,255,255,0.7), inset 0 0 20px rgba(255,255,255,0.15);
-            animation: selectedPulse 0.8s infinite;
-            z-index: 10;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.3);
+            animation: pixelSelected 0.5s steps(2) infinite;
         }
 
-        @keyframes selectedPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
+        @keyframes pixelSelected {
+            0%, 100% { box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
+            50% { box-shadow: inset 0 0 25px rgba(255,255,255,0.5); }
         }
 
         .cell.valid-move {
-            background: linear-gradient(145deg, #27ae60, #2ecc71);
-            animation: validMove 1.2s infinite;
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+            background: #2d5016;
+            border-color: #4ade80;
+            animation: pixelValid 0.8s steps(2) infinite;
         }
 
-        @keyframes validMove {
-            0%, 100% { opacity: 0.8; box-shadow: 0 0 10px #2ecc71; }
-            50% { opacity: 1; box-shadow: 0 0 25px #2ecc71, inset 0 0 10px rgba(255,255,255,0.3); }
+        @keyframes pixelValid {
+            0%, 100% { background: #2d5016; }
+            50% { background: #3d6026; }
         }
 
         .cell.attack-target {
-            background: linear-gradient(145deg, #c0392b, #e74c3c);
-            animation: attackTarget 0.6s infinite;
-            box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+            background: #7f1d1d;
+            border-color: #f87171;
+            animation: pixelAttack 0.4s steps(2) infinite;
         }
 
-        @keyframes attackTarget {
-            0%, 100% { opacity: 0.9; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 30px #e74c3c; }
+        @keyframes pixelAttack {
+            0%, 100% { background: #7f1d1d; }
+            50% { background: #9f2d2d; }
         }
 
+        /* Pixel Art Units */
         .unit {
             width: 90%;
             height: 90%;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 0.65em;
-            border: 2px solid rgba(255,255,255,0.4);
-            box-shadow: 
-                0 6px 15px rgba(0,0,0,0.5),
-                inset 0 2px 5px rgba(255,255,255,0.2);
+            image-rendering: pixelated;
             position: relative;
-            animation: unitFloat 2.5s ease-in-out infinite;
-            transition: all 0.3s;
-        }
-
-        @keyframes unitFloat {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-4px) rotate(1deg); }
-        }
-
-        .unit::after {
-            content: attr(data-emoji);
-            font-size: 1.4em;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-        }
-
-        .unit::before {
-            content: attr(data-count);
-            position: absolute;
-            bottom: -3px;
-            right: -3px;
-            background: linear-gradient(135deg, #fff, #e0e0e0);
-            color: #000;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 0.7em;
-            font-weight: bold;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
-            border: 2px solid currentColor;
-            z-index: 10;
+            align-items: center;
         }
 
-        .unit.player1 { 
-            background: linear-gradient(145deg, #c0392b, #e74c3c);
-            color: #c0392b;
+        .unit svg {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            shape-rendering: crispEdges;
         }
 
-        .unit.player2 { 
-            background: linear-gradient(145deg, #2980b9, #3498db);
-            color: #2980b9;
-        }
-
-        .unit.player3 { 
-            background: linear-gradient(145deg, #27ae60, #2ecc71);
-            color: #27ae60;
-        }
-
-        .unit.player4 { 
-            background: linear-gradient(145deg, #d68910, #f39c12);
-            color: #d68910;
+        .unit-counter {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: #000;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6em;
+            padding: 2px 4px;
+            border: 1px solid #fff;
+            min-width: 16px;
+            text-align: center;
         }
 
         /* Terrains */
         .terrain-mountain {
-            background: linear-gradient(145deg, #4a3728, #6d4c41) !important;
+            background: #4a3728 !important;
         }
         .terrain-mountain::after { 
-            content: '⛰️'; 
-            font-size: 1.8em; 
-            position: absolute; 
-            opacity: 0.9;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%236b5a4a' d='M8 2 L14 14 H2 Z'/%3E%3Cpath fill='%238b7a6a' d='M8 4 L12 12 H4 Z'/%3E%3Cpath fill='%23fff' d='M7 6 L8 4 L9 6 Z'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
         }
 
         .terrain-forest {
-            background: linear-gradient(145deg, #1b5e20, #2e7d32) !important;
+            background: #1b4d1b !important;
         }
         .terrain-forest::after { 
-            content: '🌲'; 
-            font-size: 1.8em; 
-            position: absolute; 
-            opacity: 0.9;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%232d7a2d' d='M8 1 L13 6 H10 V8 H14 L8 14 L2 8 H6 V6 H3 Z'/%3E%3Cpath fill='%231b5e1b' d='M8 14 L6 16 H10 Z'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
         }
 
         .terrain-water {
-            background: linear-gradient(145deg, #01579b, #0288d1) !important;
-            animation: waterWave 4s ease-in-out infinite;
+            background: #0d3b66 !important;
+            animation: waterPixel 2s steps(3) infinite;
         }
-        @keyframes waterWave {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.2); }
+
+        @keyframes waterPixel {
+            0%, 100% { background: #0d3b66; }
+            50% { background: #1d4b76; }
         }
+
         .terrain-water::after { 
-            content: '🌊'; 
-            font-size: 1.8em; 
-            position: absolute; 
-            opacity: 0.9;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%234aa3df' d='M2 8 Q4 6 6 8 T10 8 T14 8' stroke='%234aa3df' stroke-width='2' fill='none'/%3E%3Cpath fill='%234aa3df' d='M2 12 Q4 10 6 12 T10 12 T14 12' stroke='%234aa3df' stroke-width='2' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
+            opacity: 0.7;
         }
 
         .terrain-castle {
-            background: linear-gradient(145deg, #5c4a7d, #7e57c2) !important;
+            background: #3d2b5a !important;
         }
         .terrain-castle::after {
-            content: '🏰';
-            font-size: 1.8em;
+            content: '';
             position: absolute;
-            opacity: 0.9;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            width: 80%;
+            height: 80%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%237c6fa7' x='4' y='6' width='8' height='8'/%3E%3Crect fill='%239c8fc7' x='2' y='2' width='3' height='5'/%3E%3Crect fill='%239c8fc7' x='11' y='2' width='3' height='5'/%3E%3Crect fill='%235c4f87' x='6' y='10' width='4' height='4'/%3E%3C/svg%3E") center/contain no-repeat;
+            image-rendering: pixelated;
         }
 
         #controls {
-            background: linear-gradient(90deg, rgba(0,0,0,0.6), rgba(233, 69, 96, 0.15), rgba(0,0,0,0.6));
+            background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
             padding: 15px;
             display: flex;
             justify-content: center;
-            gap: 12px;
-            border-top: 3px solid #e94560;
-            box-shadow: 0 -4px 30px rgba(233, 69, 96, 0.3);
-            backdrop-filter: blur(10px);
-            z-index: 10;
+            gap: 15px;
+            border-top: 4px solid #333;
+            position: relative;
+            z-index: 100;
         }
 
         button {
-            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.65em;
+            background: #c0392b;
             color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 0.95em;
-            font-weight: bold;
+            border: 2px solid #e74c3c;
+            padding: 12px 20px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+            transition: all 0.1s;
+            box-shadow: 0 4px 0 #8b0000, 0 6px 10px rgba(0,0,0,0.5);
             text-transform: uppercase;
-            letter-spacing: 1px;
             position: relative;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.6s;
-        }
-
-        button:hover::before {
-            left: 100%;
         }
 
         button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.6);
+            background: #e74c3c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #8b0000, 0 8px 15px rgba(0,0,0,0.5);
         }
 
         button:active {
-            transform: translateY(-1px) scale(0.98);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #8b0000, 0 4px 5px rgba(0,0,0,0.5);
+            top: 2px;
         }
 
         button.secondary {
-            background: linear-gradient(135deg, #1a5276, #2980b9);
-            box-shadow: 0 6px 20px rgba(41, 128, 185, 0.4);
+            background: #2980b9;
+            border-color: #3498db;
+            box-shadow: 0 4px 0 #1a5276, 0 6px 10px rgba(0,0,0,0.5);
         }
 
         button.secondary:hover {
-            box-shadow: 0 10px 30px rgba(41, 128, 185, 0.6);
+            background: #3498db;
+            box-shadow: 0 6px 0 #1a5276, 0 8px 15px rgba(0,0,0,0.5);
+        }
+
+        button.secondary:active {
+            box-shadow: 0 2px 0 #1a5276, 0 4px 5px rgba(0,0,0,0.5);
         }
 
         #setup-screen {
@@ -375,60 +324,40 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0a0a15 0%, #151530 50%, #0a0a20 100%);
+            background: #0a0a12;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        #setup-screen::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            pointer-events: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
         }
 
         #setup-screen h1 {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(2em, 8vw, 4em);
-            margin-bottom: 30px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(1.2em, 5vw, 2em);
+            margin-bottom: 40px;
             text-align: center;
-            color: #e94560;
-            text-shadow: 0 4px 30px rgba(233, 69, 96, 0.8);
-            animation: titleGlow 2s ease-in-out infinite;
-            z-index: 1;
+            color: #e74c3c;
+            text-shadow: 4px 4px 0 #000;
+            animation: pixelGlow 1s steps(2) infinite;
         }
 
-        @keyframes titleGlow {
-            0%, 100% { text-shadow: 0 4px 30px rgba(233, 69, 96, 0.8); }
-            50% { text-shadow: 0 4px 50px rgba(233, 69, 96, 1), 0 0 80px rgba(233, 69, 96, 0.5); }
+        @keyframes pixelGlow {
+            0%, 100% { text-shadow: 4px 4px 0 #000, 0 0 20px rgba(231, 76, 60, 0.5); }
+            50% { text-shadow: 4px 4px 0 #000, 0 0 40px rgba(231, 76, 60, 0.8); }
         }
 
         .setup-section {
             margin: 20px 0;
             text-align: center;
-            z-index: 1;
         }
 
         .setup-section h3 {
-            margin-bottom: 15px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7em;
+            margin-bottom: 20px;
             color: #fff;
-            font-size: 1.2em;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0 #000;
         }
 
         .player-select {
@@ -439,38 +368,31 @@
         }
 
         .player-option {
-            padding: 18px 25px;
-            background: linear-gradient(145deg, #1a1a3e, #0d0d1f);
-            border: 3px solid transparent;
-            border-radius: 15px;
+            padding: 15px 20px;
+            background: #1a1a2e;
+            border: 3px solid #333;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            transition: all 0.1s;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6em;
         }
 
         .player-option:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-color: #555;
+            transform: scale(1.05);
         }
 
         .player-option.selected {
-            border-color: #e94560;
-            background: linear-gradient(145deg, #2a2a4e, #1e1e3e);
-            box-shadow: 0 0 40px rgba(233, 69, 96, 0.6);
-            transform: scale(1.08);
+            border-color: #e74c3c;
+            background: #2a2a3e;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
         }
 
         .player-option .color {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
+            width: 30px;
+            height: 30px;
             margin: 0 auto 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
-
-        .player-option div:last-child {
-            font-weight: bold;
-            font-size: 1em;
+            border: 2px solid #fff;
         }
 
         #victory-screen {
@@ -485,85 +407,59 @@
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            animation: victoryFadeIn 0.8s ease-out;
-        }
-
-        @keyframes victoryFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         #victory-screen h2 {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(2.5em, 10vw, 5em);
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(1.5em, 6vw, 2.5em);
             color: #f1c40f;
-            margin-bottom: 20px;
-            text-shadow: 0 0 50px rgba(241, 196, 15, 0.9);
-            animation: victoryGlow 1.5s ease-in-out infinite;
+            margin-bottom: 30px;
+            text-shadow: 4px 4px 0 #000;
+            animation: pixelVictory 0.5s steps(2) infinite;
         }
 
-        @keyframes victoryGlow {
-            0%, 100% { transform: scale(1); text-shadow: 0 0 50px rgba(241, 196, 15, 0.9); }
-            50% { transform: scale(1.1); text-shadow: 0 0 100px rgba(241, 196, 15, 1), 0 0 150px rgba(241, 196, 15, 0.5); }
+        @keyframes pixelVictory {
+            0%, 100% { text-shadow: 4px 4px 0 #000, 0 0 30px rgba(241, 196, 15, 0.8); }
+            50% { text-shadow: 4px 4px 0 #000, 0 0 60px rgba(241, 196, 15, 1); }
         }
 
         #victory-screen p {
-            font-size: clamp(1.2em, 5vw, 1.8em);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8em;
             margin-bottom: 40px;
             color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0 #000;
         }
 
         .stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 8px 0;
-            font-size: 0.9em;
+            gap: 8px;
+            margin: 5px 0;
         }
 
         .stat-item {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.15);
-            transition: all 0.3s;
-        }
-
-        .stat-item:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
+            background: #1a1a2e;
+            border: 2px solid #333;
+            padding: 6px 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55em;
         }
 
         .damage-popup {
             position: absolute;
-            font-size: clamp(1.2em, 4vmin, 2em);
-            font-weight: bold;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8em;
             color: #e74c3c;
-            text-shadow: 0 0 20px rgba(231, 76, 60, 1);
-            animation: damageFloat 1.2s ease-out forwards;
+            text-shadow: 2px 2px 0 #000;
+            animation: pixelDamage 1s steps(4) forwards;
             pointer-events: none;
             z-index: 100;
         }
 
-        @keyframes damageFloat {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            50% { transform: translateY(-30px) scale(1.3); }
-            100% { transform: translateY(-60px) scale(1.5); opacity: 0; }
-        }
-
-        .confetti {
-            position: fixed;
-            width: 12px;
-            height: 12px;
-            pointer-events: none;
-            animation: confettiFall 3s ease-out forwards;
-        }
-
-        @keyframes confettiFall {
-            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        @keyframes pixelDamage {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-40px); opacity: 0; }
         }
 
         .reinforcement-toast {
@@ -571,85 +467,64 @@
             top: 90px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 0.95em;
-            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.5);
-            animation: toastSlide 3s ease-out forwards;
+            background: #27ae60;
+            border: 3px solid #2ecc71;
+            padding: 12px 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6em;
+            box-shadow: 0 4px 0 #1e8449, 0 6px 20px rgba(0,0,0,0.5);
+            animation: pixelToast 3s steps(5) forwards;
             z-index: 100;
-            border: 2px solid rgba(255,255,255,0.3);
         }
 
-        @keyframes toastSlide {
+        @keyframes pixelToast {
             0% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
             10%, 90% { transform: translateX(-50%) translateY(0); opacity: 1; }
             100% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
         }
 
-        /* Assets info panel */
-        .assets-info {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            color: #aaa;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 5;
-        }
-
         @media (max-width: 600px) {
-            #setup-screen h1 { font-size: 2.2em; }
-            #victory-screen h2 { font-size: 2.5em; }
-            .unit::before { width: 16px; height: 16px; font-size: 0.6em; }
-            button { padding: 10px 18px; font-size: 0.85em; }
-            #game-board { gap: 1px; padding: 8px; }
-            .cell { font-size: 0.9em; border-radius: 4px; }
+            #current-player { font-size: 0.6em; }
+            #turn-counter { font-size: 0.55em; }
+            button { font-size: 0.55em; padding: 10px 15px; }
+            .unit-counter { font-size: 0.5em; min-width: 14px; }
+            .stat-item { font-size: 0.45em; }
         }
     </style>
 </head>
 <body>
     <div id="setup-screen">
-        <h1>⚔️ Territory Battle</h1>
+        <h1>⚔️ TERRITORY BATTLE</h1>
         <div class="setup-section">
-            <h3>🏰 Choisissez le nombre de royaumes</h3>
+            <h3>CHOISIS TON ROYAUME</h3>
             <div class="player-select">
                 <div class="player-option selected" data-players="2">
-                    <div class="color" style="background: linear-gradient(135deg, #e74c3c, #3498db);"></div>
-                    <div>2 Royaumes</div>
+                    <div class="color" style="background: #e74c3c; box-shadow: 0 0 10px #e74c3c;"></div>
+                    <div style="color: #e74c3c;">2 ROYAUMES</div>
                 </div>
                 <div class="player-option" data-players="3">
-                    <div class="color" style="background: linear-gradient(135deg, #e74c3c, #3498db, #2ecc71);"></div>
-                    <div>3 Royaumes</div>
+                    <div class="color" style="background: #3498db; box-shadow: 0 0 10px #3498db;"></div>
+                    <div style="color: #3498db;">3 ROYAUMES</div>
                 </div>
                 <div class="player-option" data-players="4">
-                    <div class="color" style="background: linear-gradient(135deg, #e74c3c, #3498db, #2ecc71, #f39c12);"></div>
-                    <div>4 Royaumes</div>
+                    <div class="color" style="background: #2ecc71; box-shadow: 0 0 10px #2ecc71;"></div>
+                    <div style="color: #2ecc71;">4 ROYAUMES</div>
                 </div>
             </div>
         </div>
-        <button onclick="startGame()" style="margin-top: 35px; font-size: 1.3em; padding: 18px 45px;">⚔️ COMMENCER</button>
-        <div style="margin-top: 20px; font-size: 0.85em; color: #888; text-align: center; max-width: 400px;">
-            🗺️ Plateau 12×12 • 🏰 Conquérez le royaume adverse
-        </div>
+        <button onclick="startGame()" style="margin-top: 30px; font-size: 0.8em;">⚔️ COMBATTRE</button>
     </div>
 
     <div id="game-header">
         <div id="current-player">
             <span class="player-indicator" id="player-indicator"></span>
-            <span id="player-name">Royaume Rouge</span>
+            <span id="player-name">EMPIRE ROUGE</span>
         </div>
         <div class="stats">
             <div class="stat-item">🏰 <span id="territories">0</span></div>
             <div class="stat-item">⚔️ <span id="units">0</span></div>
         </div>
-        <div id="turn-counter">Tour 1</div>
+        <div id="turn-counter">TOUR 1</div>
     </div>
 
     <div id="game-container">
@@ -657,25 +532,53 @@
     </div>
 
     <div id="controls">
-        <button onclick="endTurn()">⏭️ Terminer</button>
-        <button class="secondary" onclick="showHelp()">❓ Aide</button>
-        <button class="secondary" onclick="restartGame()">🔄 Rejouer</button>
+        <button onclick="endTurn()">⏭️ FIN TOUR</button>
+        <button class="secondary" onclick="showHelp()">❓ AIDE</button>
+        <button class="secondary" onclick="restartGame()">🔄 RESET</button>
     </div>
 
     <div id="victory-screen">
-        <h2>🏆 Victoire !</h2>
-        <p id="winner-name">Royaume Rouge triomphe !</p>
-        <button onclick="restartGame()">🎮 Nouvelle bataille</button>
+        <h2>🏆 VICTOIRE!</h2>
+        <p id="winner-name">EMPIRE ROUGE GAGNE!</p>
+        <button onclick="restartGame()">🎮 REJOUER</button>
     </div>
 
     <script>
-        const BOARD_SIZE = 12; // Augmenté de 8 à 12
+        const BOARD_SIZE = 12;
         const PLAYERS = [
-            { name: 'Empire Rouge', color: '#e74c3c', class: 'player1', emojis: ['🧍','🚶','🏃','🤺','⚔️','🛡️','👑'] },
-            { name: 'Royaume Bleu', color: '#3498db', class: 'player2', emojis: ['🧍','🚶','🏃','🤺','⚔️','🛡️','👑'] },
-            { name: 'Clan Vert', color: '#2ecc71', class: 'player3', emojis: ['🧍','🚶','🏃','🤺','🏹','🛡️','👑'] },
-            { name: 'Horde Orange', color: '#f39c12', class: 'player4', emojis: ['🧍','🚶','🏃','🤺','⚒️','🛡️','👑'] }
+            { name: 'EMPIRE ROUGE', color: '#e74c3c', class: 'player1' },
+            { name: 'ROYAUME BLEU', color: '#3498db', class: 'player2' },
+            { name: 'CLAN VERT', color: '#2ecc71', class: 'player3' },
+            { name: 'HORDE ORANGE', color: '#f39c12', class: 'player4' }
         ];
+
+        // SVG Sprites Pixel Art
+        const SPRITES = {
+            red: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#c0392b" x="6" y="4" width="4" height="8"/><rect fill="#e74c3c" x="5" y="2" width="6" height="4"/><rect fill="#f5b7b1" x="7" y="3" width="2" height="1"/><rect fill="#8b0000" x="6" y="12" width="1" height="2"/><rect fill="#8b0000" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#c0392b" x="6" y="3" width="4" height="9"/><rect fill="#e74c3c" x="4" y="2" width="8" height="4"/><rect fill="#f5b7b1" x="7" y="3" width="2" height="2"/><rect fill="#922b21" x="5" y="7" width="1" height="4"/><rect fill="#922b21" x="10" y="7" width="1" height="4"/><rect fill="#8b0000" x="6" y="12" width="1" height="2"/><rect fill="#8b0000" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#c0392b" x="6" y="2" width="4" height="10"/><rect fill="#e74c3c" x="4" y="1" width="8" height="4"/><rect fill="#f1c40f" x="6" y="0" width="4" height="2"/><rect fill="#f5b7b1" x="7" y="2" width="2" height="2"/><rect fill="#922b21" x="4" y="6" width="2" height="5"/><rect fill="#922b21" x="10" y="6" width="2" height="5"/><rect fill="#8b0000" x="5" y="12" width="2" height="3"/><rect fill="#8b0000" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#922b21" x="5" y="2" width="6" height="10"/><rect fill="#e74c3c" x="4" y="1" width="8" height="5"/><rect fill="#f1c40f" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#f5b7b1" x="6" y="2" width="4" height="2"/><rect fill="#c0392b" x="3" y="6" width="3" height="6"/><rect fill="#c0392b" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            },
+            blue: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2980b9" x="6" y="4" width="4" height="8"/><rect fill="#3498db" x="5" y="2" width="6" height="4"/><rect fill="#aed6f1" x="7" y="3" width="2" height="1"/><rect fill="#1a5276" x="6" y="12" width="1" height="2"/><rect fill="#1a5276" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2980b9" x="6" y="3" width="4" height="9"/><rect fill="#3498db" x="4" y="2" width="8" height="4"/><rect fill="#aed6f1" x="7" y="3" width="2" height="2"/><rect fill="#2471a3" x="5" y="7" width="1" height="4"/><rect fill="#2471a3" x="10" y="7" width="1" height="4"/><rect fill="#1a5276" x="6" y="12" width="1" height="2"/><rect fill="#1a5276" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2980b9" x="6" y="2" width="4" height="10"/><rect fill="#3498db" x="4" y="1" width="8" height="4"/><rect fill="#85c1e9" x="6" y="0" width="4" height="2"/><rect fill="#aed6f1" x="7" y="2" width="2" height="2"/><rect fill="#2471a3" x="4" y="6" width="2" height="5"/><rect fill="#2471a3" x="10" y="6" width="2" height="5"/><rect fill="#1a5276" x="5" y="12" width="2" height="3"/><rect fill="#1a5276" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#2471a3" x="5" y="2" width="6" height="10"/><rect fill="#3498db" x="4" y="1" width="8" height="5"/><rect fill="#85c1e9" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#aed6f1" x="6" y="2" width="4" height="2"/><rect fill="#2980b9" x="3" y="6" width="3" height="6"/><rect fill="#2980b9" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            },
+            green: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#27ae60" x="6" y="4" width="4" height="8"/><rect fill="#2ecc71" x="5" y="2" width="6" height="4"/><rect fill="#a9dfbf" x="7" y="3" width="2" height="1"/><rect fill="#1e8449" x="6" y="12" width="1" height="2"/><rect fill="#1e8449" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#27ae60" x="6" y="3" width="4" height="9"/><rect fill="#2ecc71" x="4" y="2" width="8" height="4"/><rect fill="#a9dfbf" x="7" y="3" width="2" height="2"/><rect fill="#229954" x="5" y="7" width="1" height="4"/><rect fill="#229954" x="10" y="7" width="1" height="4"/><rect fill="#1e8449" x="6" y="12" width="1" height="2"/><rect fill="#1e8449" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#27ae60" x="6" y="2" width="4" height="10"/><rect fill="#2ecc71" x="4" y="1" width="8" height="4"/><rect fill="#58d68d" x="6" y="0" width="4" height="2"/><rect fill="#a9dfbf" x="7" y="2" width="2" height="2"/><rect fill="#229954" x="4" y="6" width="2" height="5"/><rect fill="#229954" x="10" y="6" width="2" height="5"/><rect fill="#1e8449" x="5" y="12" width="2" height="3"/><rect fill="#1e8449" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#229954" x="5" y="2" width="6" height="10"/><rect fill="#2ecc71" x="4" y="1" width="8" height="5"/><rect fill="#58d68d" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#a9dfbf" x="6" y="2" width="4" height="2"/><rect fill="#27ae60" x="3" y="6" width="3" height="6"/><rect fill="#27ae60" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            },
+            orange: {
+                1: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#d68910" x="6" y="4" width="4" height="8"/><rect fill="#f39c12" x="5" y="2" width="6" height="4"/><rect fill="#fdebd0" x="7" y="3" width="2" height="1"/><rect fill="#9c640c" x="6" y="12" width="1" height="2"/><rect fill="#9c640c" x="9" y="12" width="1" height="2"/></svg>`,
+                2: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#d68910" x="6" y="3" width="4" height="9"/><rect fill="#f39c12" x="4" y="2" width="8" height="4"/><rect fill="#fdebd0" x="7" y="3" width="2" height="2"/><rect fill="#b9770e" x="5" y="7" width="1" height="4"/><rect fill="#b9770e" x="10" y="7" width="1" height="4"/><rect fill="#9c640c" x="6" y="12" width="1" height="2"/><rect fill="#9c640c" x="9" y="12" width="1" height="2"/></svg>`,
+                3: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#d68910" x="6" y="2" width="4" height="10"/><rect fill="#f39c12" x="4" y="1" width="8" height="4"/><rect fill="#f5b041" x="6" y="0" width="4" height="2"/><rect fill="#fdebd0" x="7" y="2" width="2" height="2"/><rect fill="#b9770e" x="4" y="6" width="2" height="5"/><rect fill="#b9770e" x="10" y="6" width="2" height="5"/><rect fill="#9c640c" x="5" y="12" width="2" height="3"/><rect fill="#9c640c" x="9" y="12" width="2" height="3"/></svg>`,
+                king: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect fill="#b9770e" x="5" y="2" width="6" height="10"/><rect fill="#f39c12" x="4" y="1" width="8" height="5"/><rect fill="#f5b041" x="5" y="0" width="6" height="2"/><rect fill="#f1c40f" x="7" y="-1" width="2" height="4"/><rect fill="#fdebd0" x="6" y="2" width="4" height="2"/><rect fill="#d68910" x="3" y="6" width="3" height="6"/><rect fill="#d68910" x="10" y="6" width="3" height="6"/><rect fill="#f1c40f" x="4" y="12" width="2" height="3"/><rect fill="#f1c40f" x="10" y="12" width="2" height="3"/></svg>`
+            }
+        };
 
         let numPlayers = 2;
         let currentPlayer = 0;
@@ -683,7 +586,6 @@
         let board = [];
         let selectedUnit = null;
         let gameEnded = false;
-        let playerStats = [];
 
         document.querySelectorAll('.player-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -693,14 +595,14 @@
             });
         });
 
-        function getUnitEmoji(playerIndex, unitCount) {
-            const emojis = PLAYERS[playerIndex].emojis;
-            if (unitCount >= 8) return emojis[6]; // 👑 Roi
-            if (unitCount >= 6) return emojis[5]; // 🛡️ Chevalier lourd
-            if (unitCount >= 4) return emojis[4]; // ⚔️/🏹/⚒️ Guerrier
-            if (unitCount >= 3) return emojis[3]; // 🤺 Épéiste
-            if (unitCount >= 2) return emojis[2]; // 🏃 Soldat
-            return emojis[0]; // 🧍 Recrue
+        function getSprite(playerIndex, unitCount) {
+            const colors = ['red', 'blue', 'green', 'orange'];
+            const color = colors[playerIndex];
+            if (unitCount >= 8) return SPRITES[color].king;
+            if (unitCount >= 6) return SPRITES[color][3];
+            if (unitCount >= 4) return SPRITES[color][2];
+            if (unitCount >= 2) return SPRITES[color][1];
+            return SPRITES[color][1];
         }
 
         function startGame() {
@@ -713,7 +615,6 @@
             currentPlayer = 0;
             turn = 1;
             gameEnded = false;
-            playerStats = PLAYERS.map(() => ({ territories: 0, units: 0 }));
             
             for (let y = 0; y < BOARD_SIZE; y++) {
                 let row = [];
@@ -729,7 +630,6 @@
                 board.push(row);
             }
             
-            // Positions de départ pour 12x12
             const startPositions = [
                 [{x: 0, y: 0}, {x: 1, y: 0}, {x: 0, y: 1}, {x: 1, y: 1}],
                 [{x: 11, y: 11}, {x: 10, y: 11}, {x: 11, y: 10}, {x: 10, y: 10}],
@@ -740,7 +640,7 @@
             for (let i = 0; i < numPlayers; i++) {
                 startPositions[i].forEach((pos, idx) => {
                     board[pos.y][pos.x].player = i;
-                    board[pos.y][pos.x].units = idx === 0 ? 5 : 3; // 5 unités sur la capitale
+                    board[pos.y][pos.x].units = idx === 0 ? 5 : 3;
                 });
             }
             
@@ -771,9 +671,14 @@
                     
                     if (cell.player !== null) {
                         const unitEl = document.createElement('div');
-                        unitEl.className = `unit ${PLAYERS[cell.player].class}`;
-                        unitEl.setAttribute('data-count', cell.units);
-                        unitEl.setAttribute('data-emoji', getUnitEmoji(cell.player, cell.units));
+                        unitEl.className = 'unit';
+                        unitEl.innerHTML = getSprite(cell.player, cell.units);
+                        
+                        const counter = document.createElement('div');
+                        counter.className = 'unit-counter';
+                        counter.textContent = cell.units;
+                        unitEl.appendChild(counter);
+                        
                         cellEl.appendChild(unitEl);
                     }
                     
@@ -787,26 +692,11 @@
             const boardEl = document.getElementById('game-board');
             const popup = document.createElement('div');
             popup.className = 'damage-popup';
-            popup.textContent = `-${damage}⚔️`;
+            popup.textContent = `-${damage}`;
             popup.style.left = `${(x / BOARD_SIZE * 100) + (50 / BOARD_SIZE)}%`;
             popup.style.top = `${(y / BOARD_SIZE * 100) + (50 / BOARD_SIZE)}%`;
             boardEl.appendChild(popup);
-            setTimeout(() => popup.remove(), 1200);
-        }
-
-        function createConfetti() {
-            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#f1c40f', '#9b59b6'];
-            for (let i = 0; i < 60; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + 'vw';
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
-                    document.body.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 4000);
-                }, i * 40);
-            }
+            setTimeout(() => popup.remove(), 1000);
         }
 
         function showReinforcementToast(count) {
@@ -815,7 +705,7 @@
             
             const toast = document.createElement('div');
             toast.className = 'reinforcement-toast';
-            toast.textContent = `⚔️ +${count} renforts arrivés !`;
+            toast.textContent = `+${count} RENFORTS!`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
@@ -938,9 +828,9 @@
             const player = PLAYERS[currentPlayer];
             const indicator = document.getElementById('player-indicator');
             indicator.style.background = player.color;
-            indicator.style.color = player.color;
+            indicator.style.borderColor = player.color;
             document.getElementById('player-name').textContent = player.name;
-            document.getElementById('turn-counter').textContent = `Tour ${turn}`;
+            document.getElementById('turn-counter').textContent = `TOUR ${turn}`;
             
             let territories = 0;
             let units = 0;
@@ -972,10 +862,9 @@
             
             if (alivePlayers.size === 1) {
                 const winner = [...alivePlayers][0];
-                document.getElementById('winner-name').textContent = `${PLAYERS[winner].name} triomphe !`;
+                document.getElementById('winner-name').textContent = `${PLAYERS[winner].name} GAGNE!`;
                 document.getElementById('victory-screen').style.display = 'flex';
                 gameEnded = true;
-                createConfetti();
             }
         }
 
@@ -985,30 +874,21 @@
         }
 
         function showHelp() {
-            alert(`🎮 TERRITORY BATTLE - RÈGLES
+            alert(`TERRITORY BATTLE - REGLES
 
-⚔️ OBJECTIF : Conquérir tous les territoires ennemis
+OBJECTIF: Conquerir tous les territoires!
 
-🗺️ PLATEAU 12×12 avec :
-   🌲 Forêts (bonus défense +1)
-   ⛰️ Montagnes (infranchissables)
-   🌊 Eaux (infranchissables)
-   🏰 Châteaux (bonus défense +1)
+CONTROLES:
+• Selectionne une unite pour la deplacer
+• Vert = Deplacement possible
+• Rouge = Attaque possible
 
-📱 CONTRÔLES :
-   • Touche une unité pour la sélectionner
-   • Cases vertes = déplacement possible
-   • Cases rouges = attaque possible
-   • "Terminer" pour passer au joueur suivant
+COMBAT:
+• Attaquant gagne si superieur
+• Foret/Chateau = +1 defense
+• Max 9 unites par case
 
-⚔️ COMBAT :
-   • L'attaquant gagne s'il est supérieur
-   • Forêt/Château donne +1 défense
-   • Unités max : 9 par case
-
-🔄 RENFORTS : +1 unité par tour sur chaque territoire contrôlé
-
-💡 ASTUCE : Fusionne tes unités pour créer des armées puissantes !`);
+RENFORTS: +1 unite par tour!`);
         }
 
         renderBoard();
