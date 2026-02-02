@@ -16,19 +16,27 @@ function jsonResponse(data, status = 200) {
 export async function onRequest(context) {
   const { request, env, params } = context;
   const path = '/' + (params.route || '');
-  
+
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-  
+
+  // Vérifier que la base D1 est configurée
+  if (!env.DB) {
+    return jsonResponse({
+      success: false,
+      error: 'Database not configured. Please add D1 binding "DB" in Cloudflare Dashboard > Workers & Pages > territory-battle > Settings > Functions > D1 Database Bindings'
+    }, 500);
+  }
+
   try {
     // Health check
     if (path === '/health' && request.method === 'GET') {
       return jsonResponse({ status: 'ok', service: 'Territory Battle API', version: '1.0.0' });
     }
     
-    // Init DB
-    if (path === '/init' && request.method === 'POST') {
+    // Init DB (accepte aussi GET pour faciliter le test)
+    if (path === '/init' && (request.method === 'POST' || request.method === 'GET')) {
       await env.DB.batch([
         env.DB.prepare(`CREATE TABLE IF NOT EXISTS players (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
