@@ -626,9 +626,9 @@
                     let cell = { x, y, player: null, units: 0, terrain: 'normal' };
                     const rand = Math.random();
                     if (rand < 0.06) cell.terrain = 'mountain';
-                    else if (rand < 0.10) cell.terrain = 'forest';
-                    else if (rand < 0.05) cell.terrain = 'water';
-                    else if (rand < 0.03) cell.terrain = 'castle';
+                    else if (rand < 0.16) cell.terrain = 'forest';
+                    else if (rand < 0.21) cell.terrain = 'water';
+                    else if (rand < 0.24) cell.terrain = 'castle';
                     row.push(cell);
                 }
                 board.push(row);

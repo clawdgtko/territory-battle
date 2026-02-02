@@ -16,6 +16,7 @@ function jsonResponse(data, status = 200) {
 export async function onRequest(context) {
   const { request, env, params } = context;
   const path = '/' + (params.route || '');
+  const url = new URL(request.url);
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
